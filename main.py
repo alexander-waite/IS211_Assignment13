@@ -38,6 +38,9 @@ def indexpage():
     return render_template("index2.html", rows=rows)
 
 
+"""@app.route('results/add', methods=['GET', 'POST'])
+    def bookPage(title, heading):"""
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     con = sqlite3.connect('hw13.db')
@@ -123,6 +126,11 @@ def quizadd():
             return redirect(url_for('dashboard'))
     else:
         return render_template("quizadd.html")
+
+
+@app.route('/student/<id>', methods=['GET', 'POST'])
+def student(id):
+    pass
 
 
 if __name__ == '__main__':
