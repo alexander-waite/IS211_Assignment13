@@ -45,9 +45,6 @@ def dashboard():
     con = sqlite3.connect('hw13.db')
     con.row_factory = sqlite3.Row
     cur = con.cursor()
-    strs = ["select student.student_id, student.student_first_name, student.student_last_name from student",
-            "select quizzes.quiz_id, quizzes.quiz_subject, quizzes.quiz_question_amount, quizzes.quiz_date from quizzes"]
-    # cur.execute("select student.student_id, student.student_first_name, student.student_last_name from student")
     cur.execute("select student.student_id, student.student_first_name, student.student_last_name from student")
     con.commit()
     rows = cur.fetchall()
@@ -130,7 +127,17 @@ def quizadd():
 @app.route('/student/<studentid>', methods=['GET', 'POST'])
 def studentidpass(studentid=None):
     print(studentid)
-    return render_template("studentsearch.html")
+    error = 'Error, user not found'
+    con = sqlite3.connect('hw13.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    cur.execute(
+        "SELECT score_id,score_total FROM score WHERE student_id= {}".format(studentid))
+    con.commit()
+    rowscur = cur.fetchall()
+    con.close()
+
+    return render_template("studentsearch.html", rows=rowscur, error=error)
 
 
 if __name__ == '__main__':
