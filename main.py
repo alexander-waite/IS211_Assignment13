@@ -38,8 +38,7 @@ def indexpage():
     return render_template("index2.html", rows=rows)
 
 
-"""@app.route('results/add', methods=['GET', 'POST'])
-    def bookPage(title, heading):"""
+
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -128,9 +127,10 @@ def quizadd():
         return render_template("quizadd.html")
 
 
-@app.route('/student/<id>', methods=['GET', 'POST'])
-def student(id):
-    pass
+@app.route('/student/<studentid>', methods=['GET', 'POST'])
+def studentidpass(studentid=None):
+    print(studentid)
+    return render_template("studentsearch.html")
 
 
 if __name__ == '__main__':
