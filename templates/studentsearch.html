@@ -20,11 +20,10 @@ div {
             <td>Quiz ID</td>
             <td>Quiz Score</td>
          </thead>
-
-         {% for row in rows %}
+         {% for row in rowscur %}
             <tr>
-               <td>{{row["quiz_id"]}}</td>
-               <td>{{row["quiz_score"]}}</td>
+               <td>{{row["score_id"]}}</td>
+               <td>{{row["score_total"]}}</td>
             </tr>
          {% endfor %}
       </table>

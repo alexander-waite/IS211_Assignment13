@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <style>
+div {
+  width: 320px;
+  padding: 10px;
+  border: 5px solid gray;
+  margin: auto;
+  text-align: center;
+}
+</style>
+   <body>
+<div>
+    <form action = "/score/add" method = "post">
+   Score Total: <input type="text" name="score_total"><br/>
+
+      <label for="student_id">Student ID:</label>
+        <select id="student_id" name="student_id">
+  {% for row in studentrows %}
+    <option value="{{row["student_id"]}}">{{row["student_id"]}}</option>
+  {% endfor %}
+     </select>
+<br />
+        <label for="quiz_id">Quiz ID:</label>
+  <select id="quiz_id" name="quiz_id">
+  {% for row in quizrows %}
+    <option value="{{row["quiz_id"]}}">{{row["quiz_id"]}}</option>
+  {% endfor %}
+  </select>
+        <br />
+    <input type="submit" value="Submit">
+    <form action= "/clear" method="post">
+      <input type="submit" value="Clear">
+    </form>
+  </form>
+   {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+</div>
+   </body>
+</html>

@@ -38,8 +38,6 @@ def indexpage():
     return render_template("index2.html", rows=rows)
 
 
-
-
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     con = sqlite3.connect('hw13.db')
@@ -94,34 +92,83 @@ def quizadd():
     con = sqlite3.connect('hw13.db')
     con.row_factory = sqlite3.Row
     cur = con.cursor()
-    cur.execute("SELECT quiz_id FROM quizzes WHERE quiz_id=(SELECT max(quiz_id) FROM quizzes)")
-    quiz_id = [dict(id=row[0]) for row in cur.fetchall()][0]["id"] + 1
+    try:
+        cur.execute("SELECT quiz_id FROM quizzes WHERE quiz_id=(SELECT max(quiz_id) FROM quizzes)")
+        quiz_id = [dict(id=row[0]) for row in cur.fetchall()][0]["id"] + 1
+    except(IndexError):
+        quiz_id = 1
     con.close()
     if request.method == 'POST':
         if request.form['quiz_subject'] is not None:
             try:
-                subject = '"'+ request.form['quiz_subject'].strip() + '"'
-                q_amt =request.form['quiz_question_amount'].strip()
+                subject = '"' + request.form['quiz_subject'].strip() + '"'
+                q_amt = request.form['quiz_question_amount'].strip()
                 q_date = request.form['quiz_date'].strip()
-                q_date = '"'+ datetime.datetime.strptime(q_date, '%Y-%m-%d').strftime('%B %d,%Y') + '"'
+                q_date = '"' + datetime.datetime.strptime(q_date, '%Y-%m-%d').strftime('%B %d,%Y') + '"'
                 q_date = q_date
-                print('quiz_id {}, subject {}, q_amt {} q_date {}'.format(quiz_id,subject,q_amt,q_date))
+                print('quiz_id {}, subject {}, q_amt {} q_date {}'.format(quiz_id, subject, q_amt, q_date))
                 con = sqlite3.connect('hw13.db')
                 con.row_factory = sqlite3.Row
                 cur = con.cursor()
                 # TODO: insecure, fix if have time
                 cur.execute(
-                    "INSERT INTO quizzes (quiz_id, quiz_subject, quiz_question_amount, quiz_date) VALUES ({}, {}, {}, {})".format(quiz_id,subject,q_amt,q_date))
+                    "INSERT INTO quizzes (quiz_id, quiz_subject, quiz_question_amount, quiz_date) VALUES ({}, {}, {}, {})".format(
+                        quiz_id, subject, q_amt, q_date))
                 con.commit()
                 con.close()
                 return redirect('/dashboard')
             except:
                 error = 'Invalid Name. Please try again.'
-                return render_template('quizadd.html', error=error)
+                return render_template('scoreadd.html', error=error)
         else:
             return redirect(url_for('dashboard'))
     else:
         return render_template("quizadd.html")
+
+
+@app.route('/score/add', methods=['GET', 'POST'])
+def scoreadd():
+    con = sqlite3.connect('hw13.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+
+    try:
+        cur.execute("SELECT score_id FROM score WHERE score_id=(SELECT max(score_id) FROM score)")
+        score_id = [dict(id=row[0]) for row in cur.fetchall()][0]["id"] + 1
+    except(IndexError):
+        score_id = 1
+
+    cur.execute("SELECT student.student_id FROM student;")
+    studentrows = cur.fetchall()
+
+    cur.execute("SELECT quizzes.quiz_id FROM quizzes;")
+    quizrows = cur.fetchall()
+
+    con.close()
+
+    if request.method == 'POST':
+        if request.form['score_total'] is not None:
+            try:
+                student_id_input = request.form['student_id'].strip()
+                quiz_id_input = request.form['quiz_id'].strip()
+                score_total = request.form['score_total'].strip()
+                print('student_id_input {}, quiz_id_input {}'.format(student_id_input, quiz_id_input))
+                con = sqlite3.connect('hw13.db')
+                con.row_factory = sqlite3.Row
+                cur = con.cursor()
+                sql_secure_str = "INSERT INTO score(score_id, score_total, student_id, quiz_id) VALUES (?,?,?,?)"
+                sql_secure_input = (score_id, score_total, student_id_input, quiz_id_input)
+                cur.execute(sql_secure_str, sql_secure_input)
+                con.commit()
+                con.close()
+                return redirect('/dashboard')
+            except:
+                error = 'Invalid Score Error. Please try again.'
+                return render_template('scoreadd.html', error=error)
+        else:
+            return redirect(url_for('dashboard'))
+    else:
+        return render_template("scoreadd.html", quizrows=quizrows, studentrows=studentrows)
 
 
 @app.route('/student/<int_sid>', methods=['GET', 'POST'])
@@ -136,13 +183,11 @@ def studentidpass(int_sid):
     rowscur = cur.fetchall()
     con.close()
 
-    return render_template("studentsearch.html", rows=rowscur, error=error)
+    return render_template("studentsearch.html", rowscur=rowscur, error=error)
 
 
 if __name__ == '__main__':
     app.run(debug=True)
 
-# export FLASK_APP=hello.py
-# flask run
-# https://realpython.com/the-model-view-controller-mvc-paradigm-summarized-with-legos/
-# http: // opentechschool.github.io / python - flask / core / files - templates.html
+# set FLASK_APP = main.py
+# set FLASK_ENV=development
