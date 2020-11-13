@@ -124,15 +124,14 @@ def quizadd():
         return render_template("quizadd.html")
 
 
-@app.route('/student/<studentid>', methods=['GET', 'POST'])
-def studentidpass(studentid=None):
-    print(studentid)
+@app.route('/student/<int_sid>', methods=['GET', 'POST'])
+def studentidpass(int_sid):
     error = 'Error, user not found'
     con = sqlite3.connect('hw13.db')
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute(
-        "SELECT score_id,score_total FROM score WHERE student_id= {}".format(studentid))
+        "SELECT score_id,score_total FROM score WHERE student_id= {}".format(int_sid))
     con.commit()
     rowscur = cur.fetchall()
     con.close()
